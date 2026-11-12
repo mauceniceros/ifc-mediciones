@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ifc-mediciones"
 version = "0.1.0"
-description = "Spanish-style bill of quantities (mediciones) from IFC models, with every number traceable and doubtful data flagged for review."
+description = "Bill of quantities from IFC models, with every number traceable and doubtful data flagged for review."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

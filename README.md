@@ -1,8 +1,8 @@
 # ifc-mediciones
 
-**From an IFC model to a Spanish-style bill of quantities (*mediciones*), where every number says where it came from and anything doubtful is flagged for review.**
+**From an IFC model to a bill of quantities, where every number says where it came from and anything doubtful is flagged for review.**
 
-In Spanish construction, the *mediciones* is the document that lists every line item of a project (*partida*) with its unit and quantity, grouped into chapters (*capítulos*). It's the basis for the budget, for tenders and for certifying work on site. When the quantities come from a BIM model, the usual problem isn't extracting the numbers. It's knowing which ones to trust.
+A bill of quantities lists every line item of a project with its unit and quantity, grouped into chapters. In Spain it's called *mediciones*, and its line items *partidas*; the output keeps those Spanish labels so it can go straight into a Spanish budget. It's the basis for the budget, for tenders and for certifying work on site. When the quantities come from a BIM model, the usual problem isn't extracting the numbers. It's knowing which ones to trust.
 
 I built this small tool to automate that first takeoff. It doesn't hide the model's problems. It puts them on a list.
 
@@ -13,7 +13,7 @@ I built this small tool to automate that first takeoff. It doesn't hide the mode
 1. **Reads the model** (IFC2x3, IFC4, IFC4.3) and converts all quantities to metric units, whatever the model's units are (mm, m, feet).
 2. **Assigns each element to a *partida*** using a plain YAML rules file. Rules can filter by IFC class, `PredefinedType`, `IsExternal` and type name, so you can adapt them to your own budget structure without touching code.
 3. **Takes each quantity from the model's own IFC quantities** (`NetSideArea`, `NetVolume`...). If the model has none, it **falls back to geometry** and says so.
-4. **Groups the result the way a *mediciones* is read**: chapter → *partida* → one line per storey and element type.
+4. **Groups the result the way a bill of quantities is read**: chapter → *partida* → one line per storey and element type.
 5. **Writes an Excel file with four sheets**:
    - **Mediciones**: the document itself, with subtotals per *partida*
    - **Resumen**: one line per *partida*
