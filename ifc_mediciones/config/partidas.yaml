@@ -1,0 +1,153 @@
+# Rules that turn IFC elements into "partidas" (bill-of-quantities line items).
+#
+# Rules are checked in order. The FIRST rule that matches an element wins,
+# so put specific rules (e.g. exterior walls) before general ones.
+#
+# Fields
+#   codigo        Line-item code (free text, keep it unique)
+#   capitulo      Chapter the line item belongs to
+#   resumen       Short description, as it would appear in the budget
+#   unidad        m3 | m2 | m | ud
+#   clases        IFC classes that match (subclasses included)
+#   tipo_predefinido   optional, IFC PredefinedType (e.g. FLOOR, ROOF, CEILING)
+#   exterior      optional, true/false, read from Pset_*Common.IsExternal
+#   tipo_regex    optional, regular expression on the element's type name
+#                 (useful when the model uses one IFC class for several things)
+#   cantidades    IFC quantity names to read, in order of preference
+#   geometria     fallback when the model has no quantities:
+#                 volume | footprint_area | side_area | length | none
+#
+# For "ud" the element is simply counted, no quantity names needed.
+
+# Elements that are measured in their own partida even when they are part of
+# another measured element (a door in a curtain wall, rafters in a roof).
+# Any other part is considered included in its parent.
+medir_siempre: [IfcDoor, IfcWindow, IfcBeam, IfcColumn, IfcFooting]
+
+capitulos:
+  "01": Cimentación
+  "02": Estructura
+  "03": Cerramientos y particiones
+  "04": Cubiertas
+  "05": Carpintería
+  "06": Revestimientos
+  "07": Escaleras y barandillas
+
+partidas:
+  - codigo: "01.01"
+    capitulo: "01"
+    resumen: Hormigón armado en cimentación (zapatas y vigas de atado)
+    unidad: m3
+    clases: [IfcFooting]
+    cantidades: [NetVolume, GrossVolume]
+    geometria: volume
+
+  - codigo: "02.01"
+    capitulo: "02"
+    resumen: Pilares
+    unidad: m3
+    clases: [IfcColumn]
+    cantidades: [NetVolume, GrossVolume]
+    geometria: volume
+
+  - codigo: "02.02"
+    capitulo: "02"
+    resumen: Vigas
+    unidad: m3
+    clases: [IfcBeam]
+    cantidades: [NetVolume, GrossVolume]
+    geometria: volume
+
+  - codigo: "04.01"
+    capitulo: "04"
+    resumen: Cubierta (losa / faldón)
+    unidad: m2
+    clases: [IfcSlab]
+    tipo_predefinido: ROOF
+    cantidades: [NetArea, GrossArea, CrossArea]
+    geometria: footprint_area
+
+  - codigo: "04.02"
+    capitulo: "04"
+    resumen: Cubierta
+    unidad: m2
+    clases: [IfcRoof]
+    cantidades: [NetArea, GrossArea]
+    geometria: footprint_area
+
+  - codigo: "02.03"
+    capitulo: "02"
+    resumen: Forjados y losas
+    unidad: m2
+    clases: [IfcSlab]
+    cantidades: [NetArea, GrossArea, CrossArea]
+    geometria: footprint_area
+
+  - codigo: "03.01"
+    capitulo: "03"
+    resumen: Muro de fachada, medido a una cara descontando huecos
+    unidad: m2
+    clases: [IfcWall]
+    exterior: true
+    cantidades: [NetSideArea, GrossSideArea]
+    geometria: side_area
+
+  - codigo: "03.02"
+    capitulo: "03"
+    resumen: Tabiquería interior, medida a una cara descontando huecos
+    unidad: m2
+    clases: [IfcWall]
+    cantidades: [NetSideArea, GrossSideArea]
+    geometria: side_area
+
+  - codigo: "03.03"
+    capitulo: "03"
+    resumen: Muro cortina
+    unidad: m2
+    clases: [IfcCurtainWall]
+    cantidades: [NetSideArea, GrossSideArea, Area]
+    geometria: side_area
+
+  - codigo: "05.01"
+    capitulo: "05"
+    resumen: Puertas
+    unidad: ud
+    clases: [IfcDoor]
+
+  - codigo: "05.02"
+    capitulo: "05"
+    resumen: Ventanas
+    unidad: ud
+    clases: [IfcWindow]
+
+  - codigo: "06.01"
+    capitulo: "06"
+    resumen: Falso techo
+    unidad: m2
+    clases: [IfcCovering]
+    tipo_predefinido: CEILING
+    cantidades: [NetArea, GrossArea, GrossCeilingArea]
+    geometria: footprint_area
+
+  - codigo: "06.02"
+    capitulo: "06"
+    resumen: Pavimentos
+    unidad: m2
+    clases: [IfcCovering]
+    tipo_predefinido: FLOORING
+    cantidades: [NetArea, GrossArea]
+    geometria: footprint_area
+
+  - codigo: "07.01"
+    capitulo: "07"
+    resumen: Escaleras
+    unidad: ud
+    clases: [IfcStair]
+
+  - codigo: "07.02"
+    capitulo: "07"
+    resumen: Barandillas
+    unidad: m
+    clases: [IfcRailing]
+    cantidades: [Length]
+    geometria: length
